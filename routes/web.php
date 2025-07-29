@@ -18,10 +18,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('/barang', BarangController::class);
-    Route::resource('/uli', UliController::class);
-    Route::resource('/tukaruli', TukarUliController::class);
-       Route::resource('pengunjung', PengunjungController::class);
+    Route::get('/uli/create/tukar', [UliController::class, 'createTukar'])->name('uli.create.tukar');
+    Route::get('/uli/create/kembali', [UliController::class, 'createKembali'])->name('uli.create.kembali');
+    Route::resource('uli', UliController::class);
 });
 
 require __DIR__.'/auth.php';

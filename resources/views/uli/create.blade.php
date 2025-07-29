@@ -1,42 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="p-4 max-w-xl mx-auto">
+    <div class="p-6">
         <h1 class="text-xl font-bold mb-4">Tambah Data Uli</h1>
 
         <form action="{{ route('uli.store') }}" method="POST" class="space-y-4">
             @csrf
 
             <div>
-                <label class="block mb-1">Tanggal</label>
-                <input type="date" name="tanggal" class="w-full border rounded px-3 py-2" required>
+                <label>Tanggal</label>
+                <input type="date" name="tanggal" class="border p-2 w-full" required>
             </div>
 
             <div>
-                <label class="block mb-1">Kategori</label>
-                <select name="kategori" class="w-full border rounded px-3 py-2" required>
-                    <option value="">-- Pilih --</option>
-                    <option value="Uli Beredar">Uli Beredar</option>
-                    <option value="Uli Cadangan">Uli Cadangan</option>
+                <label>Kategori</label>
+                <select name="kategori" class="border p-2 w-full" {{ isset($kategori) ? 'disabled' : '' }}>
+                    <option value="Uli Beredar" {{ isset($kategori) && $kategori == 'Uli Beredar' ? 'selected' : '' }}>Uli
+                        Beredar</option>
+                    <option value="Uli Cadangan" {{ isset($kategori) && $kategori == 'Uli Cadangan' ? 'selected' : '' }}>Uli
+                        Cadangan</option>
+                    <option value="Uli Kembali" {{ isset($kategori) && $kategori == 'Uli Kembali' ? 'selected' : '' }}>Uli
+                        Kembali</option>
+                    <option value="Tukar Uli" {{ isset($kategori) && $kategori == 'Tukar Uli' ? 'selected' : '' }}>Tukar Uli
+                    </option>
                 </select>
+                @if (isset($kategori))
+                    <input type="hidden" name="kategori" value="{{ $kategori }}">
+                @endif
             </div>
 
-            <div>
-                <label class="block mb-1">Uli 2.5</label>
-                <input type="number" name="uli_25" class="w-full border rounded px-3 py-2" required>
-            </div>
+            @foreach ([['uli_25', 'Uli 2.5'], ['uli_5', 'Uli 5'], ['uli_10', 'Uli 10']] as $field)
+                <div>
+                    <label>{{ $field[1] }}</label>
+                    <input type="number" name="{{ $field[0] }}" class="border p-2 w-full" step="0.01"
+                        value="0">
+                </div>
+            @endforeach
 
-            <div>
-                <label class="block mb-1">Uli 5</label>
-                <input type="number" name="uli_5" class="w-full border rounded px-3 py-2" required>
-            </div>
-
-            <div>
-                <label class="block mb-1">Uli 10</label>
-                <input type="number" name="uli_10" class="w-full border rounded px-3 py-2" required>
-            </div>
-
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Simpan</button>
+            <button class="px-4 py-2 bg-green-500 text-white rounded">Simpan</button>
+            <a href="{{ route('uli.index') }}" class="px-4 py-2 bg-gray-400 text-white rounded">Batal</a>
         </form>
     </div>
 @endsection

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="p-4 max-w-xl mx-auto">
+    <div class="p-6">
         <h1 class="text-xl font-bold mb-4">Edit Data Uli</h1>
 
         <form action="{{ route('uli.update', $uli->id) }}" method="POST" class="space-y-4">
@@ -9,40 +9,45 @@
             @method('PUT')
 
             <div>
-                <label class="block mb-1">Tanggal</label>
-                <input type="date" name="tanggal" value="{{ $uli->tanggal }}" class="w-full border rounded px-3 py-2"
+                <label>Tanggal</label>
+                <input type="date" name="tanggal" class="border p-2 w-full" value="{{ old('tanggal', $uli->tanggal) }}"
                     required>
             </div>
 
             <div>
-                <label class="block mb-1">Kategori</label>
-                <select name="kategori" class="w-full border rounded px-3 py-2" required>
-                    <option value="Uli Beredar" {{ $uli->kategori == 'Uli Beredar' ? 'selected' : '' }}>Uli Beredar
-                    </option>
-                    <option value="Uli Cadangan" {{ $uli->kategori == 'Uli Cadangan' ? 'selected' : '' }}>Uli Cadangan
-                    </option>
+                <label>Kategori</label>
+                <select name="kategori" class="border p-2 w-full">
+                    <option value="Uli Beredar" {{ old('kategori', $uli->kategori) == 'Uli Beredar' ? 'selected' : '' }}>Uli
+                        Beredar</option>
+                    <option value="Uli Cadangan" {{ old('kategori', $uli->kategori) == 'Uli Cadangan' ? 'selected' : '' }}>
+                        Uli Cadangan</option>
+                    <option value="Uli Kembali" {{ old('kategori', $uli->kategori) == 'Uli Kembali' ? 'selected' : '' }}>Uli
+                        Kembali</option>
+                    <option value="Tukar Uli" {{ old('kategori', $uli->kategori) == 'Tukar Uli' ? 'selected' : '' }}>Tukar
+                        Uli</option>
                 </select>
             </div>
 
             <div>
-                <label class="block mb-1">Uli 2.5</label>
-                <input type="number" name="uli_25" value="{{ $uli->uli_25 }}" class="w-full border rounded px-3 py-2"
-                    required>
+                <label>Uli 2.5</label>
+                <input type="number" step="0.01" name="uli_25" class="border p-2 w-full"
+                    value="{{ old('uli_25', $uli->uli_25) }}">
             </div>
 
             <div>
-                <label class="block mb-1">Uli 5</label>
-                <input type="number" name="uli_5" value="{{ $uli->uli_5 }}" class="w-full border rounded px-3 py-2"
-                    required>
+                <label>Uli 5</label>
+                <input type="number" step="0.01" name="uli_5" class="border p-2 w-full"
+                    value="{{ old('uli_5', $uli->uli_5) }}">
             </div>
 
             <div>
-                <label class="block mb-1">Uli 10</label>
-                <input type="number" name="uli_10" value="{{ $uli->uli_10 }}" class="w-full border rounded px-3 py-2"
-                    required>
+                <label>Uli 10</label>
+                <input type="number" step="0.01" name="uli_10" class="border p-2 w-full"
+                    value="{{ old('uli_10', $uli->uli_10) }}">
             </div>
 
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update</button>
+            <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded">Update</button>
+            <a href="{{ route('uli.index') }}" class="px-4 py-2 bg-gray-400 text-white rounded">Batal</a>
         </form>
     </div>
 @endsection

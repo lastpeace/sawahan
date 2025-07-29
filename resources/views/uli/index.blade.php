@@ -1,76 +1,99 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-5xl mx-auto mt-10">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">Data Uli (Stok Uli)</h2>
-            <div class="flex gap-2">
-                <a href="{{ route('uli.index') }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Lihat Stock
-                </a>
-                <a href="{{ route('tukaruli.index') }}" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-                    Lihat Tukar Uli
-                </a>
-                <a href="{{ route('uli.create') }}" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">
-                    Tambah Uli
-                </a>
-            </div>
+    <div class="bg-white rounded-xl shadow-lg p-5">
+
+        {{-- 🔹 Tombol Aksi --}}
+        <div class="flex gap-3 mb-4">
+            <a href="{{ route('uli.create') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
+                + Tambah Data
+            </a>
+            <a href="{{ route('uli.create.tukar') }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded">
+                + Tukar Uli
+            </a>
+            <a href="{{ route('uli.create.kembali') }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">
+                + Uli Kembali
+            </a>
         </div>
 
-        @if (session('success'))
-            <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-                {{ session('success') }}
-            </div>
-        @endif
+        {{-- 🔹 Filter Tanggal --}}
+        <form method="GET" action="{{ route('uli.index') }}" class="mb-4 flex items-center gap-2">
+            <input type="date" name="tanggal" value="{{ request('tanggal') }}" class="border rounded p-2">
+            <button type="submit" class="bg-blue-500 text-white px-3 py-2 rounded">Filter</button>
+            <a href="{{ route('uli.index') }}" class="bg-gray-400 text-white px-3 py-2 rounded">Reset</a>
+        </form>
 
-        <div class="overflow-x-auto bg-white rounded shadow">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal
-                        </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Kategori</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Uli 2.5
-                        </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Uli 5
-                        </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Uli 10
-                        </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($data as $item)
+        {{-- 🔹 Tabel dengan Scroll --}}
+        <div class="overflow-x-auto">
+            <div class="h-[450px] overflow-y-auto border rounded-lg">
+                <table class="min-w-full border-collapse">
+                    <thead class="bg-gray-100 sticky top-0 z-10 text-gray-700 text-sm">
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $item->tanggal }}</td>
-                            <td class="px-6 py-4 text-center">{{ $item->kategori }}</td>
-                            <td class="px-6 py-4 text-center">{{ $item->uli_25 }}</td>
-                            <td class="px-6 py-4 text-center">{{ $item->uli_5 }}</td>
-                            <td class="px-6 py-4 text-center">{{ $item->uli_10 }}</td>
-                            <td class="px-6 py-4 text-center font-semibold">{{ $item->total }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{{ route('uli.edit', $item->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                <form action="{{ route('uli.destroy', $item->id) }}" method="POST"
-                                    class="inline-block ml-2" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:underline">Hapus</button>
-                                </form>
-                            </td>
+                            <th class="px-4 py-3 text-left font-semibold border-b">Tanggal</th>
+                            <th class="px-4 py-3 text-left font-semibold border-b">Kategori</th>
+                            <th class="px-4 py-3 text-left font-semibold border-b">Uli 2.5 (Kps)</th>
+                            <th class="px-4 py-3 text-left font-semibold border-b">Uli 5 (Kps)</th>
+                            <th class="px-4 py-3 text-left font-semibold border-b">Uli 10 (Kps)</th>
+                            <th class="px-4 py-3 text-right font-semibold border-b">Total</th>
+                            <th class="px-4 py-3 text-center font-semibold border-b">Aksi</th>
                         </tr>
-                    @endforeach
+                    </thead>
 
-                    @if ($data->isEmpty())
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-gray-500">Tidak ada data Uli.</td>
-                        </tr>
+                    <tbody class="text-sm text-gray-700">
+                        @forelse ($ulis as $uli)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ $uli->tanggal }}</td>
+                                <td class="px-4 py-2">{{ $uli->kategori }}</td>
+                                <td class="px-4 py-2">
+                                    Rp {{ number_format($uli->uli_25, 0, ',', '.') }}
+                                    <span class="text-gray-500 text-xs">({{ $uli->kps_25 }})</span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    Rp {{ number_format($uli->uli_5, 0, ',', '.') }}
+                                    <span class="text-gray-500 text-xs">({{ $uli->kps_5 }})</span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    Rp {{ number_format($uli->uli_10, 0, ',', '.') }}
+                                    <span class="text-gray-500 text-xs">({{ $uli->kps_10 }})</span>
+                                </td>
+                                <td class="px-4 py-2 text-right font-bold">
+                                    Rp {{ number_format($uli->uli_25 + $uli->uli_5 + $uli->uli_10, 0, ',', '.') }}
+                                </td>
+                                <td class="px-4 py-2 text-center space-x-1">
+                                    <a href="{{ route('uli.edit', $uli->id) }}"
+                                        class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-xs">Edit</a>
+                                    <form action="{{ route('uli.destroy', $uli->id) }}" method="POST" class="inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-gray-500">Tidak ada data</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+
+                    {{-- 🔹 Total Stok Uli di bawah tabel --}}
+                    @if ($stok)
+                        <tfoot class="bg-yellow-50 font-semibold">
+                            <tr>
+                                <td colspan="7" class="px-4 py-3">
+                                    💰 Total Uli Beredar:
+                                    <strong>Rp
+                                        {{ number_format($stok->uli_25 + $stok->uli_5 + $stok->uli_10, 0, ',', '.') }}</strong>
+                                    &nbsp;|&nbsp;
+                                    🔢 2.5: <strong>{{ $stok->kps_25 }}</strong> |
+                                    5: <strong>{{ $stok->kps_5 }}</strong> |
+                                    10: <strong>{{ $stok->kps_10 }}</strong>
+                                </td>
+                            </tr>
+                        </tfoot>
                     @endif
-                </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 @endsection
