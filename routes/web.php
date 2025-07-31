@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BarangController;
 use App\Http\Controllers\UliController;
-use App\Http\Controllers\TukarUliController;
 use App\Http\Controllers\PengunjungController;
+use App\Http\Controllers\PedagangController;
+use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\LaporanController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -21,6 +22,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/uli/create/tukar', [UliController::class, 'createTukar'])->name('uli.create.tukar');
     Route::get('/uli/create/kembali', [UliController::class, 'createKembali'])->name('uli.create.kembali');
     Route::resource('uli', UliController::class);
+    Route::resource('pengunjung', PengunjungController::class);
+    Route::resource('pedagang', PedagangController::class);
+    Route::resource('pengeluaran', PengeluaranController::class);
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -1,38 +1,33 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Uli;
-use App\Models\StokUli;
 use Illuminate\Http\Request;
 
 class UliController extends Controller
 {
-    // Ambil stok (selalu 1 baris saja)
-    private function getStok()
+    public function index(Request $request)
     {
-        return StokUli::firstOrCreate(['id' => 1], [
-            'uli_25' => 0, 'kps_25' => 0,
-            'uli_5' => 0, 'kps_5' => 0,
-            'uli_10' => 0, 'kps_10' => 0
-        ]);
+        $query = Uli::query();
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->tanggal);
+        }
+
+        $ulis = $query->orderBy('tanggal', 'desc')->get();
+
+        // ✅ Hitung stok per tanggal
+        $stok = (object) [
+            'uli_25' => $ulis->where('kategori', '!=', 'Uli Cadangan')->sum('uli_25'),
+            'uli_5' => $ulis->where('kategori', '!=', 'Uli Cadangan')->sum('uli_5'),
+            'uli_10' => $ulis->where('kategori', '!=', 'Uli Cadangan')->sum('uli_10'),
+            'kps_25' => $ulis->where('kategori', '!=', 'Uli Cadangan')->sum('kps_25'),
+            'kps_5' => $ulis->where('kategori', '!=', 'Uli Cadangan')->sum('kps_5'),
+            'kps_10' => $ulis->where('kategori', '!=', 'Uli Cadangan')->sum('kps_10'),
+        ];
+
+        return view('uli.index', compact('ulis', 'stok'));
     }
-
-   public function index(Request $request)
-{
-    $query = Uli::query()->orderBy('tanggal', 'desc');
-
-    // Cek apakah ada input tanggal
-    if ($request->has('tanggal') && $request->tanggal != null) {
-        $query->whereDate('tanggal', $request->tanggal);
-    }
-
-    $ulis = $query->get();
-    $stok = $this->getStok();
-
-    return view('uli.index', compact('ulis', 'stok'));
-}
-
 
     public function create()
     {
@@ -66,8 +61,13 @@ class UliController extends Controller
         $uli_5 = $request->uli_5 ?? 0;
         $uli_10 = $request->uli_10 ?? 0;
 
-        // Simpan transaksi
-        $uli = Uli::create([
+        if (in_array($request->kategori, ['Tukar Uli', 'Uli Kembali'])) {
+            $uli_25 *= -1;
+            $uli_5 *= -1;
+            $uli_10 *= -1;
+        }
+
+        Uli::create([
             'tanggal' => $request->tanggal,
             'kategori' => $request->kategori,
             'uli_25' => $uli_25,
@@ -78,25 +78,8 @@ class UliController extends Controller
             'kps_10' => $uli_10 / 10000,
         ]);
 
-        // Update stok
-        $stok = $this->getStok();
-
-        if ($uli->kategori == 'Uli Beredar') {
-            $stok->uli_25 += $uli_25;
-            $stok->uli_5 += $uli_5;
-            $stok->uli_10 += $uli_10;
-        } elseif (in_array($uli->kategori, ['Tukar Uli', 'Uli Kembali'])) {
-            $stok->uli_25 -= $uli_25;
-            $stok->uli_5 -= $uli_5;
-            $stok->uli_10 -= $uli_10;
-        }
-
-        $stok->kps_25 = $stok->uli_25 / 2500;
-        $stok->kps_5 = $stok->uli_5 / 5000;
-        $stok->kps_10 = $stok->uli_10 / 10000;
-        $stok->save();
-
-        return redirect()->route('uli.index')->with('success', 'Data Uli berhasil ditambahkan.');
+        return redirect()->route('uli.index', ['tanggal' => $request->tanggal])
+            ->with('success', 'Data Uli berhasil ditambahkan.');
     }
 
     public function edit(Uli $uli)
@@ -114,11 +97,15 @@ class UliController extends Controller
             'uli_10' => 'nullable|numeric'
         ]);
 
-        // Hitung selisih untuk update stok
-        $old = $uli->only(['kategori', 'uli_25', 'uli_5', 'uli_10']);
         $uli_25 = $request->uli_25 ?? 0;
         $uli_5 = $request->uli_5 ?? 0;
         $uli_10 = $request->uli_10 ?? 0;
+
+        if (in_array($request->kategori, ['Tukar Uli', 'Uli Kembali'])) {
+            $uli_25 *= -1;
+            $uli_5 *= -1;
+            $uli_10 *= -1;
+        }
 
         $uli->update([
             'tanggal' => $request->tanggal,
@@ -131,61 +118,13 @@ class UliController extends Controller
             'kps_10' => $uli_10 / 10000,
         ]);
 
-        // Update stok berdasarkan selisih
-        $stok = $this->getStok();
-
-        // Jika kategori berubah, kita balikin stok lama dulu
-        if ($old['kategori'] == 'Uli Beredar') {
-            $stok->uli_25 -= $old['uli_25'];
-            $stok->uli_5 -= $old['uli_5'];
-            $stok->uli_10 -= $old['uli_10'];
-        } elseif (in_array($old['kategori'], ['Tukar Uli', 'Uli Kembali'])) {
-            $stok->uli_25 += $old['uli_25'];
-            $stok->uli_5 += $old['uli_5'];
-            $stok->uli_10 += $old['uli_10'];
-        }
-
-        // Tambahkan stok baru sesuai kategori baru
-        if ($request->kategori == 'Uli Beredar') {
-            $stok->uli_25 += $uli_25;
-            $stok->uli_5 += $uli_5;
-            $stok->uli_10 += $uli_10;
-        } elseif (in_array($request->kategori, ['Tukar Uli', 'Uli Kembali'])) {
-            $stok->uli_25 -= $uli_25;
-            $stok->uli_5 -= $uli_5;
-            $stok->uli_10 -= $uli_10;
-        }
-
-        $stok->kps_25 = $stok->uli_25 / 2500;
-        $stok->kps_5 = $stok->uli_5 / 5000;
-        $stok->kps_10 = $stok->uli_10 / 10000;
-        $stok->save();
-
-        return redirect()->route('uli.index')->with('success', 'Data Uli berhasil diperbarui.');
+        return redirect()->route('uli.index', ['tanggal' => $request->tanggal])
+            ->with('success', 'Data Uli berhasil diperbarui.');
     }
 
     public function destroy(Uli $uli)
     {
-        // Sebelum hapus, kembalikan stok
-        $stok = $this->getStok();
-
-        if ($uli->kategori == 'Uli Beredar') {
-            $stok->uli_25 -= $uli->uli_25;
-            $stok->uli_5 -= $uli->uli_5;
-            $stok->uli_10 -= $uli->uli_10;
-        } elseif (in_array($uli->kategori, ['Tukar Uli', 'Uli Kembali'])) {
-            $stok->uli_25 += $uli->uli_25;
-            $stok->uli_5 += $uli->uli_5;
-            $stok->uli_10 += $uli->uli_10;
-        }
-
-        $stok->kps_25 = $stok->uli_25 / 2500;
-        $stok->kps_5 = $stok->uli_5 / 5000;
-        $stok->kps_10 = $stok->uli_10 / 10000;
-        $stok->save();
-
         $uli->delete();
-
         return redirect()->route('uli.index')->with('success', 'Data Uli berhasil dihapus.');
     }
 }
