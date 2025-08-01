@@ -7,11 +7,9 @@ use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\PedagangController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\LaporanController;
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/dashboard', function () {
+
+Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
