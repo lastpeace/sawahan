@@ -37,7 +37,7 @@ class PengunjungController extends Controller
         $motor = $request->sumbangan_motor;
         $mobil = $request->sumbangan_mobil;
 
-        $total_sumbangan = ($motor * 2000) + ($mobil * 4000);
+        $total_sumbangan = ($motor * 2000) + ($mobil * 5000);
         $total_pengunjung = ($motor * 2) + ($mobil * 4);
 
         Pengunjung::create([
@@ -67,7 +67,7 @@ class PengunjungController extends Controller
         $motor = $request->sumbangan_motor;
         $mobil = $request->sumbangan_mobil;
 
-        $total_sumbangan = ($motor * 2000) + ($mobil * 4000);
+        $total_sumbangan = ($motor * 2000) + ($mobil * 5000);
         $total_pengunjung = ($motor * 2) + ($mobil * 4);
 
         $pengunjung->update([

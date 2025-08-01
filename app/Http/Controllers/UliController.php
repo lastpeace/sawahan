@@ -38,13 +38,13 @@ class UliController extends Controller
     public function createTukar()
     {
         $kategori = "Tukar Uli";
-        return view('uli.create', compact('kategori'));
+        return view('uli.createtukar', compact('kategori'));
     }
 
     public function createKembali()
     {
         $kategori = "Uli Kembali";
-        return view('uli.create', compact('kategori'));
+        return view('uli.createkembali', compact('kategori'));
     }
 
     public function store(Request $request)

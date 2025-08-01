@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="max-w-lg mx-auto bg-white shadow-lg rounded-xl p-6">
-        <h1 class="text-2xl font-bold text-gray-700 mb-6">Stock Uli</h1>
+        <h1 class="text-2xl font-bold text-gray-700 mb-6">Uli Kembali</h1>
 
         <form action="{{ route('uli.store') }}" method="POST" class="space-y-5">
             @csrf
@@ -24,10 +24,9 @@
                         Beredar</option>
                     <option value="Uli Cadangan" {{ isset($kategori) && $kategori == 'Uli Cadangan' ? 'selected' : '' }}>Uli
                         Cadangan</option>
-                    <option value="Uli Kembali" hidden isset($kategori) && $kategori=='Uli Kembali' ? 'selected' : '' }}>Uli
+                    <option value="Uli Kembali" {{ isset($kategori) && $kategori == 'Uli Kembali' ? 'selected' : '' }}>Uli
                         Kembali</option>
-                    <option value="Tukar Uli" hidden {{ isset($kategori) && $kategori == 'Tukar Uli' ? 'selected' : '' }}>
-                        Tukar Uli
+                    <option value="Tukar Uli" {{ isset($kategori) && $kategori == 'Tukar Uli' ? 'selected' : '' }}>Tukar Uli
                     </option>
                 </select>
                 @if (isset($kategori))
